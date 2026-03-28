@@ -18,61 +18,45 @@ notioncanvas-mcp (Node.js)
                    draws frames on canvas
 ```
 
-## One-time setup (~10 minutes)
+## One-time setup (~5 minutes)
 
-### 1. Clone & install
+### 1. Clone, install & build
 
 ```bash
 git clone https://github.com/TheCodeDaniel/notion_canvas
-cd notioncanvas-mcp
+cd notion_canvas
 npm install
+npm run build
 ```
 
-### 2. Configure credentials
+### 2. Fill in `.env` and run setup
 
 ```bash
 cp .env.example .env
 ```
 
-Edit `.env` with your three credentials:
+Edit `.env` with your credentials:
 
 | Variable | Where to get it |
 |----------|----------------|
 | `NOTION_TOKEN` | notion.com → Settings → Connections → Develop integrations → New integration (Internal) |
 | `ANTHROPIC_API_KEY` | console.anthropic.com → API Keys |
 | `FIGMA_ACCESS_TOKEN` | figma.com → Settings → Security → Personal access tokens (scopes: `file_content:read`, `file_metadata:read`) |
-| `FIGMA_PAT_EXPIRES` | ISO date of your PAT expiry, e.g. `2026-06-25` |
+| `FIGMA_PAT_EXPIRES` | ISO expiry date of your PAT, e.g. `2026-09-25` |
 
-### 3. Build
+Then run:
 
 ```bash
-npm run build
+npm run setup
 ```
 
-### 4. Configure Claude Desktop
+That's it. The command reads your `.env` and:
+- **Auto-detects** the Claude Desktop config path for your OS (macOS / Windows)
+- **Creates** the config file + directory if they don't exist
+- **Merges** the `notioncanvas` entry without touching other MCP servers you may have
+- **Auto-resolves** the absolute path to `dist/index.js` — nothing to edit manually
 
-Add to `~/Library/Application Support/Claude/claude_desktop_config.json` (macOS) or `%APPDATA%\Claude\claude_desktop_config.json` (Windows):
-
-```json
-{
-  "mcpServers": {
-    "notioncanvas": {
-      "command": "node",
-      "args": ["/absolute/path/to/notioncanvas-mcp/dist/index.js"],
-      "env": {
-        "NOTION_TOKEN": "secret_xxxx",
-        "ANTHROPIC_API_KEY": "sk-ant-xxxx",
-        "FIGMA_ACCESS_TOKEN": "figd_xxxx",
-        "FIGMA_PAT_EXPIRES": "2026-06-25"
-      }
-    }
-  }
-}
-```
-
-> **Important:** Use an absolute path. Relative paths do not work in Claude Desktop MCP configs.
-
-### 5. Share Notion pages with your integration
+### 3. Share Notion pages with your integration
 
 For each Notion page you want to use:
 1. Open the page in Notion
