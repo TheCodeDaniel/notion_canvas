@@ -9,7 +9,7 @@ import { logger } from '../utils/logger.js';
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
 const MODEL = 'claude-sonnet-4-6';
-const MAX_TOKENS = 8192;
+const MAX_TOKENS = 16000;
 const MAX_RETRIES = 2;
 
 export async function interpretWithClaude(

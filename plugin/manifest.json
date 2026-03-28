@@ -7,7 +7,7 @@
   "editorType": ["figma"],
   "permissions": ["currentuser"],
   "networkAccess": {
-    "allowedDomains": ["none"],
-    "reasoning": "Only connects to localhost WebSocket — no external network access"
+    "allowedDomains": ["http://localhost:9223", "ws://localhost:9223"],
+    "reasoning": "Connects to local MCP server WebSocket bridge on localhost:9223"
   }
 }

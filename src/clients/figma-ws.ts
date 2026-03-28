@@ -9,15 +9,11 @@ import { sleep } from '../utils/retry.js';
 // ── Kill any stale process holding the given port (macOS / Linux) ────────────
 function freePort(port: number): void {
   try {
-    const pid = execSync(`lsof -ti:${port}`, { stdio: ['pipe', 'pipe', 'ignore'] })
-      .toString()
-      .trim();
-    if (pid) {
-      execSync(`kill -9 ${pid}`, { stdio: 'ignore' });
-      logger.warn(`Freed stale process (PID ${pid}) on port ${port}`);
-    }
+    // Use shell pipeline — handles multiple PIDs and suppresses errors cleanly
+    execSync(`lsof -ti tcp:${port} | xargs kill -9 2>/dev/null || true`, { shell: '/bin/sh' });
+    logger.warn(`Freed stale process(es) on port ${port}`);
   } catch {
-    // lsof not available or no process found — ignore
+    // Nothing on the port or lsof unavailable — fine
   }
 }
 
@@ -36,7 +32,7 @@ export interface WssHandle {
 export async function startWebSocketServer(port: number): Promise<WssHandle> {
   // Free any stale process from a previous server instance before binding
   freePort(port);
-  await sleep(100); // brief pause to let the OS release the port
+  await sleep(500); // give the OS time to fully release the port after kill
 
   const wss = new WebSocketServer({ host: '127.0.0.1', port });
 

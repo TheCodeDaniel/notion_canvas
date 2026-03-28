@@ -26,7 +26,9 @@ figma.ui.onmessage = async function (msg) {
     }
     figma.ui.postMessage({ id: id, success: true, result: result });
   } catch (err) {
-    figma.ui.postMessage({ id: id, success: false, error: err.message });
+    var errMsg = (err && err.message) ? err.message : String(err);
+    console.error('[NotionCanvas] Plugin error:', errMsg);
+    figma.ui.postMessage({ id: id, success: false, error: errMsg });
   }
 };
 
@@ -44,9 +46,10 @@ async function createScreen(payload) {
   figma.currentPage = page;
 
   // Load fonts before creating any text nodes
+  // Note: Figma uses "Semi Bold" (with space), not "SemiBold"
   await figma.loadFontAsync({ family: 'Inter', style: 'Regular' });
   await figma.loadFontAsync({ family: 'Inter', style: 'Medium' });
-  await figma.loadFontAsync({ family: 'Inter', style: 'SemiBold' });
+  await figma.loadFontAsync({ family: 'Inter', style: 'Semi Bold' });
   await figma.loadFontAsync({ family: 'Inter', style: 'Bold' });
 
   // Create root screen frame
@@ -90,8 +93,8 @@ async function renderComponent(comp) {
       t.characters = comp.content || '';
       t.fontSize = comp.fontSize || 16;
 
-      // Font weight
-      var weightMap = { Regular: 'Regular', Medium: 'Medium', SemiBold: 'SemiBold', Bold: 'Bold' };
+      // Font weight — Figma uses "Semi Bold" (with space)
+      var weightMap = { Regular: 'Regular', Medium: 'Medium', SemiBold: 'Semi Bold', Bold: 'Bold' };
       var style = weightMap[comp.fontWeight] || 'Regular';
       t.fontName = { family: 'Inter', style: style };
 
