@@ -1,9 +1,25 @@
 // src/clients/figma-ws.ts
 import { WebSocketServer, WebSocket } from 'ws';
 import { randomUUID } from 'crypto';
+import { execSync } from 'child_process';
 import type { WsCommand, WsResponse } from '../types/figma.js';
 import { logger } from '../utils/logger.js';
 import { sleep } from '../utils/retry.js';
+
+// ── Kill any stale process holding the given port (macOS / Linux) ────────────
+function freePort(port: number): void {
+  try {
+    const pid = execSync(`lsof -ti:${port}`, { stdio: ['pipe', 'pipe', 'ignore'] })
+      .toString()
+      .trim();
+    if (pid) {
+      execSync(`kill -9 ${pid}`, { stdio: 'ignore' });
+      logger.warn(`Freed stale process (PID ${pid}) on port ${port}`);
+    }
+  } catch {
+    // lsof not available or no process found — ignore
+  }
+}
 
 const pendingRequests = new Map<
   string,
@@ -18,6 +34,10 @@ export interface WssHandle {
 }
 
 export async function startWebSocketServer(port: number): Promise<WssHandle> {
+  // Free any stale process from a previous server instance before binding
+  freePort(port);
+  await sleep(100); // brief pause to let the OS release the port
+
   const wss = new WebSocketServer({ host: '127.0.0.1', port });
 
   wss.on('connection', (ws) => {
