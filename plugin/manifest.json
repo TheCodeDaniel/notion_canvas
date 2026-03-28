@@ -1,0 +1,12 @@
+{
+  "name": "NotionCanvas Bridge",
+  "id": "notioncanvas-bridge-v1",
+  "api": "1.0.0",
+  "main": "plugin.js",
+  "ui": "ui.html",
+  "permissions": ["currentuser"],
+  "networkAccess": {
+    "allowedDomains": ["none"],
+    "reasoning": "Only connects to localhost WebSocket — no external network access"
+  }
+}

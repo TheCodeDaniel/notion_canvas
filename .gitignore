@@ -1,0 +1,16 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+
+# Environment — NEVER commit credentials
+.env
+
+# TypeScript cache
+*.tsbuildinfo
+
+# Editor
+.DS_Store
+.vscode/
+.idea/

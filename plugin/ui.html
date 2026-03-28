@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+  <body>
+    <script>
+      const WS_PORT = 9223;
+      let ws;
+
+      function connect() {
+        ws = new WebSocket('ws://localhost:' + WS_PORT);
+
+        ws.onopen = function () {
+          console.log('[NotionCanvas] Bridge connected to MCP server on port ' + WS_PORT);
+        };
+
+        // Relay incoming commands from MCP server → plugin main thread
+        ws.onmessage = function (event) {
+          var msg = JSON.parse(event.data);
+          window.parent.postMessage({ pluginMessage: msg }, '*');
+        };
+
+        ws.onclose = function () {
+          console.log('[NotionCanvas] Bridge disconnected. Retrying in 3s...');
+          setTimeout(connect, 3000); // auto-reconnect
+        };
+
+        ws.onerror = function (err) {
+          console.error('[NotionCanvas] WebSocket error', err);
+        };
+      }
+
+      // Relay results from plugin main thread → MCP server
+      window.addEventListener('message', function (event) {
+        if (ws && ws.readyState === WebSocket.OPEN) {
+          ws.send(JSON.stringify(event.data.pluginMessage));
+        }
+      });
+
+      connect();
+    </script>
+  </body>
+</html>
